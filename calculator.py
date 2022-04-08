@@ -3,6 +3,10 @@ from tkinter import *
 root = Tk()
 root.title("계산기")
 root.geometry("205x270+200+200")
+def check_op(c):
+  if(c=='*' or c=='/'): return 2
+  if(c=='+' or c=='-'): return 1
+  else: return -1
 
 #to show
 ans = []
@@ -17,17 +21,41 @@ def add_num(n):
   ans.append(str(n))
   if n == 'clear':
     ans.clear()
+    cal.clear()
   label1.config(text = ''.join(ans))
-  if 0<=int(n)<=9:
-    #숫자 여러개 연속으로 나오는 경우 처리 해야 함
-    cal.append(n)
-  elif n == '*' or n == '/':
-    pass
-  elif n == '+' or n == '-':
-    pass
-  elif n == '=':
-    pass
-
+  n = str(n)
+  if '0'<=n<='9':
+    #숫자 여러개 연속
+    if len(ans)>1 and check_op(str(ans[-2]))==-1:
+      a = ans.pop()
+      a = 10*int(ans.pop()) +int(a)
+      ans.append(str(a))
+      cal.pop()
+      cal.append(a)
+    else:
+      cal.append(int(n))
+  else:
+    p = check_op(n)
+    if p == 1 or p == 2:
+      while(len(save_op)!=0 and check_op(save_op[-1])>=p):
+        cal.append(save_op.pop())
+      save_op.append(n)
+  if n == '=':
+    while(len(save_op)!=0):
+      cal.append(save_op.pop())
+    #=나오면 결과 계산
+    cal_ans = []
+    for i in cal:
+      if '0'<=str(i)<='9': cal_ans.append(int(i))
+      else:
+        val2 = cal_ans.pop()
+        val1 = cal_ans.pop()
+        if i == '+': cal_ans.append(val1+val2)
+        elif i=='-': cal_ans.append(val1-val2)
+        elif i =='*': cal_ans.append(val1*val2)
+        elif i =='/':cal_ans.append(val1//val2)
+    ans.append(str(cal_ans[0]))
+    label1.config(text = ''.join(ans))
 
 #그냥 class 쓸 걸..
 #clear
@@ -44,7 +72,7 @@ btn_mul.grid(row =1 , column =3, sticky=N+E+W+S,padx=3,pady=3)
 #7시작
 btn_7 = Button(root, text="7",padx=10,pady=10,command=lambda : add_num(7))
 btn_8 = Button(root, text="8",padx=10,pady=10,command=lambda : add_num(8))  #command는 직접적으로 인자를 못 받는 건가??
-btn_9 = Button(root, text="9",padx=10,pady=10,command=lambda : add_num(8))
+btn_9 = Button(root, text="9",padx=10,pady=10,command=lambda : add_num(9))
 btn_sub = Button(root, text="-",padx=10,pady=10,command=lambda : add_num('-'))
 
 btn_7.grid(row =2 , column =0, sticky=N+E+W+S,padx=3,pady=3)
